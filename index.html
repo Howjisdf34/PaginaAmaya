@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprendiendo DML en SQL | Blog Técnico</title>
+    <style>
+        /* --- VARIABLES DE DISEÑO (Tema Oscuro Minimalista) --- */
+        :root {
+            --bg-principal: #0b0f19;
+            --bg-tarjeta: #151b2c;
+            --bg-codigo: #1e2638;
+            --texto-primario: #f3f4f6;
+            --texto-secundario: #9ca3af;
+            --acento: #38bdf8; /* Azul tecnológico */
+            --acento-hover: #7dd3fc;
+            --alerta: #ef4444; /* Para advertencias */
+            --borde: rgba(255, 255, 255, 0.05);
+            --fuente-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --fuente-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        /* --- ESTILOS BASE Y RESET --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto-primario);
+            font-family: var(--fuente-sans);
+            line-height: 1.6;
+            padding: 0;
+        }
+
+        .contenedor {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* --- CABECERA (HERO SECTION) --- */
+        header {
+            text-align: center;
+            padding: 4rem 1rem 3rem 1rem;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        .badge {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--acento);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-top: 1rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, var(--texto-secundario));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header .subtitulo {
+            color: var(--texto-secundario);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        main {
+            margin-top: 3rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h2::before {
+            content: "//";
+            color: var(--acento);
+            font-family: var(--fuente-mono);
+        }
+
+        p {
+            color: var(--texto-secundario);
+            margin-bottom: 1.25rem;
+            font-size: 1.05rem;
+        }
+
+        /* --- TARJETAS CARACTERÍSTICAS (GRID RESPONSIVO) --- */
+        .grid-caracteristicas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .tarjeta-feature {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            padding: 1.5rem;
+            border-radius: 12px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .tarjeta-feature:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .tarjeta-feature h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--texto-primario);
+        }
+
+        /* --- SECCIÓN DE COMANDOS (FLEX/GRID CORNER) --- */
+        .comando-bloque {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .comando-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .comando-titulo {
+            font-family: var(--fuente-mono);
+            font-size: 1.4rem;
+            color: var(--acento);
+            font-weight: 700;
+        }
+
+        /* --- BLOQUES DE CÓDIGO --- */
+        pre {
+            background-color: var(--bg-codigo);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto; /* Evita que rompa el diseño en móviles */
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            margin-top: 1rem;
+        }
+
+        code {
+            font-family: var(--fuente-mono);
+            font-size: 0.95rem;
+            color: #e2e8f0;
+        }
+
+        /* --- NOTAS DE ADVERTENCIA (CALLOUTS) --- */
+        .nota-alerta {
+            background: rgba(239, 68, 68, 0.05);
+            border-left: 4px solid var(--alerta);
+            padding: 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin-top: 1.5rem;
+        }
+
+        .nota-alerta h4 {
+            color: var(--alerta);
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* --- TABLA RESPONSIVA --- */
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto; /* Scroll horizontal si la pantalla es muy chica */
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--borde);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+            background-color: var(--bg-tarjeta);
+        }
+
+        th, td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.02);
+            color: var(--texto-primario);
+            font-weight: 600;
+        }
+
+        td {
+            color: var(--texto-secundario);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--texto-secundario);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--borde);
+            margin-top: 4rem;
+        }
+
+        /* --- RESPONSIVIDAD ADICIONAL (MEDIA QUERIES) --- */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .comando-bloque {
+                padding: 1.25rem;
+            }
+            
+            th, td {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        
+        <header>
+            <span class="badge">Sublenguajes de SQL</span>
+            <h1>Dominando DML</h1>
+            <p class="subtitulo">Aprende a manipular, interactuar y gestionar los registros internos de tus bases de datos con elegancia y control.</p>
+        </header>
+
+        <main>
+            
+            <section>
+                <h2>¿Qué es el lenguaje DML?</h2>
+                <p>El <strong>Lenguaje de Manipulación de Datos (DML)</strong> es la sección de SQL especializada en la interacción directa con la información dentro de las tablas. A diferencia de DDL, que se encarga de diseñar las estructuras y contenedores, las sentencias DML operan estrictamente sobre las filas y registros existentes.</p>
+                
+                <div class="tabla-contenedor">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sublenguaje</th>
+                                <th>Significado</th>
+                                <th>Función Principal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>DML</strong></td>
+                                <td>Data Manipulation Language</td>
+                                <td>Manipula y gestiona la información de los registros.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section>
+                <h2>Características Clave</h2>
+                <div class="grid-caracteristicas">
+                    <div class="tarjeta-feature">
+                        <h3>Orientado a Filas</h3>
+                        <p>Cada consulta o comando afecta directamente a registros individuales o conjuntos de datos específicos, no a la tabla completa.</p>
+                    </div>
+                    <div class="tarjeta-feature">
+                        <h3>Dependencia Estructural</h3>
+                        <p>No puede operar en el vacío. Requiere de manera obligatoria que las entidades y esquemas hayan sido creados previamente mediante comandos DDL.</p>
+                    </div>
+                    <div class="tarjeta-feature">
+                        <h3>Control Transaccional</h3>
+                        <p>La mayoría de los gestores modernos permiten revertir (Rollback) o confirmar (Commit) estos cambios antes de que sean definitivos.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Comandos Esenciales y Aplicación</h2>
+                <p>El manejo cotidiano de la persistencia de datos se apoya en tres operaciones fundamentales:</p>
+
+                <div class="comando-bloque">
+                    <div class="comando-header">
+                        <span class="comando-titulo">INSERT</span>
+                        <span class="badge" style="color: #4ade80; background: rgba(74, 222, 128, 0.1);">Añadir</span>
+                    </div>
+                    <p>Permite ingresar nuevas filas dentro de una tabla especificando los campos destino y sus valores correspondientes.</p>
+<pre><code>INSERT INTO alumnos (id_alumno, nombre, carrera) 
+VALUES (1, 'José Ángel', 'Ingeniería en TI');</code></pre>
+                </div>
+
+                <div class="comando-bloque">
+                    <div class="comando-header">
+                        <span class="comando-titulo">UPDATE</span>
+                        <span class="badge" style="color: #facc15; background: rgba(250, 204, 21, 0.1);">Modificar</span>
+                    </div>
+                    <p>Actualiza los valores de los campos seleccionados en uno o varios registros de la tabla que cumplan con un criterio determinado.</p>
+<pre><code>UPDATE alumnos 
+SET carrera = 'Ingeniería de Software' 
+WHERE id_alumno = 1;</code></pre>
+                    
+                    <div class="nota-alerta">
+                        <h4>⚠️ Regla de Oro</h4>
+                        <p>Asegúrate siempre de estructurar correctamente la condición <code>WHERE</code>. Si ejecutas un comando de modificación omitiendo esta cláusula, el cambio afectará de forma masiva a la totalidad de los registros de la base de datos.</p>
+                    </div>
+                </div>
+
+                <div class="comando-bloque">
+                    <div class="comando-header">
+                        <span class="comando-titulo">DELETE</span>
+                        <span class="badge" style="color: #f87171; background: rgba(248, 113, 113, 0.1);">Eliminar</span>
+                    </div>
+                    <p>Remueve físicamente uno o más registros específicos del almacenamiento, basándose en la condición del filtro.</p>
+<pre><code>DELETE FROM alumnos 
+WHERE id_alumno = 1;</code></pre>
+                </div>
+
+            </section>
+
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Blog de Ingeniería de Software. Diseñado con un enfoque minimalista y responsivo.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
